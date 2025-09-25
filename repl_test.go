@@ -2,7 +2,6 @@ package main
 
 import (
 	"testing"
-	"fmt"
 )
 
 func TestCleanInput(t *testing.T) {
@@ -18,26 +17,29 @@ func TestCleanInput(t *testing.T) {
 			input:	  "Charmander Bulbasaur PIKACHU",
 			expected: []string{"charmander", "bulbasaur", "pikachu"},
 		},
+		{
+			input:	  "",
+			expected: []string{},
+		},
+		{
+			input:	  " Help    me   PLZ                              ",
+			expected: []string{"help", "me", "plz"},
+		},
 	}
 
 	for _, c := range cases {
 		actual := cleanInput(c.input)
 		if len(actual) != len(c.expected) {
-			t.Errorf("Something bad happened")
+			t.Errorf("Error: Actual length does not match expected length")
+			t.Errorf("Actual: %v   Expected: %v", len(actual), len(c.expected))
 		}
-		// Check the length of the actual slice against the expected slice
-		// if they don't match, use t.Errorf to print an error message
-		// and fail the test
 		for i := range actual {
-			fmt.Println(actual[1])
 			word := actual[i]
 			expectedWord := c.expected[i]
 			if word != expectedWord {
-				t.Errorf("A word was wrong")
+				t.Errorf("Error: Actual word does not match expected word")
+				t.Errorf("Actual: %s   Expected: %s", word, expectedWord)
 			}
-			// Check each word in the slice
-			// if they don't match, use t.Errorf to print an error message
-			// and fail the test
 		}
 	}
 }
