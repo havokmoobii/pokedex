@@ -1,55 +1,41 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
+	"errors"
 )
 
-type LocationResp struct {
-	Count    int    `json:"count"`
-	Next     *string `json:"next"`
-	Previous *string `json:"previous"`
-	Results  []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	}               `json:"results"`
+
+func commandMapf(cfg *config) error {
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
+	if err != nil {
+		return err
+	}
+
+	cfg.nextLocationsURL = locationsResp.Next
+	cfg.previousLocationsURL = locationsResp.Previous
+
+	for _, loc := range locationsResp.Results {
+		fmt.Println(loc.Name)
+	}
+	return nil
 }
 
-func commandMap(c *config) error {
-	url := "https://pokeapi.co/api/v2/location-area/"
-	if c.next != "" {
-		url = c.next
+func commandMapb(cfg *config) error {
+	if cfg.previousLocationsURL == nil {
+		return errors.New("you're on the first page")
 	}
-
-	res, err := http.Get(url)
+	
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.previousLocationsURL)
 	if err != nil {
-		return fmt.Errorf("error creating request: %w", err)
-	}
-	defer res.Body.Close()
-
-	var locations LocationResp
-	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&locations)
-
-	if err != nil {
-		return fmt.Errorf("decoder error: %w", err)
+		return err
 	}
 
-	if locations.Next != nil {
-		c.next = *locations.Next
-	} else {
-		c.next = ""
-	}
-	if locations.Previous != nil {
-		c.previous = *locations.Previous
-	} else {
-		c.previous = ""
-	}
+	cfg.nextLocationsURL = locationsResp.Next
+	cfg.previousLocationsURL = locationsResp.Previous
 
-	for _, location := range locations.Results {
-		fmt.Println(location.Name)
+	for _, loc := range locationsResp.Results {
+		fmt.Println(loc.Name)
 	}
-
 	return nil
 }
