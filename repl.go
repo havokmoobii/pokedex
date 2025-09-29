@@ -30,7 +30,13 @@ func startRepl(cfg *config) {
 			fmt.Println("Unknown Command")
 			continue
 		}
-		err := command.callback(cfg)
+
+		parameters := make([]string, 0)
+		if len(words) > 1 {
+			parameters = words[1:len(words)]
+		}
+
+		err := command.callback(cfg, parameters)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -44,29 +50,41 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name	    string
 	description string
-	callback    func(*config) error
+	usage       string
+	callback    func(*config, []string) error
 }
 
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
 			name:        "help",
-			description: "Displays a help message",
+			description: "Displays a help message. Enter help <command> for additional information",
+			usage:       `help - Lists all commands and gives basic usage info
+      help <command> - Gives additional usage info on specific command if applicable`,
 			callback:    commandHelp,
 		},
 		"exit": {
 			name:        "exit",
 			description: "Exit the Pokedex",
+			usage:       "Exit the Pokedex",
 			callback:    commandExit,
 		},
 		"map": {
 			name:        "map",
 			description: "Display the next 20 location areas in the Pokemon world",
+			usage:       `map - Display the next 20 location areas in the Pokemon world
+     map <number> <offset>
+         <number> - (NYI)Adjusts how many locations are shown at once.
+         <offset> - (NYI)Adjusts the starting point in the list of locations`,
 			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "mapb",
 			description: "Display the previous 20 location areas in the Pokemon world",
+			usage:       `map - Display the previous 20 location areas in the Pokemon world
+     mapb <number> <offset>
+          <number> - (NYI)Adjusts how many locations are shown at once.
+          <offset> - (NYI)Adjusts the starting point in the list of locations`,
 			callback:    commandMapb,
 		},
 	}
