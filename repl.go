@@ -9,10 +9,17 @@ import (
 	"github.com/havokmoobii/pokedex/internal/pokeapi"
 )
 
+// Kind of redundant now to have a map of a string to the same string,
+// but leaves room for adding all sorts of dex info later.
+type pokemon struct {
+	name string
+}
+
 type config struct {
 	pokeapiClient        pokeapi.Client
 	nextLocationsURL     *string
 	previousLocationsURL *string
+	pokedex              map[string]pokemon
 }
 
 func startRepl(cfg *config) {
@@ -89,10 +96,17 @@ func getCommands() map[string]cliCommand {
 		},
 		"explore": {
 			name:        "explore",
-			description: "Display all pokemon that can be found in a given area",
+			description: "Display all Pokemon that can be found in a given area",
 			usage:       `explore <location> - Displays all Pokemon that can be found at <location>
                  <location> - Map name that can be found with the map and mapb commands`,
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Attempt to catch a given Pokemon",
+			usage:       `catch <name> - Attempt to catch a given Pokemon using the gen 3 safari game formula
+             <name> - Name of Pokemon to catch`,
+			callback:    commandCatch,
 		},
 	}
 }
