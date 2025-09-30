@@ -74,7 +74,7 @@ func getCommands() map[string]cliCommand {
 			description: "Display the next 20 location areas in the Pokemon world",
 			usage:       `map - Display the next 20 location areas in the Pokemon world
      map <number> <offset>
-         <number> - (NYI)Adjusts how many locations are shown at once.
+         <number> - (NYI)Adjusts how many locations are shown at once
          <offset> - (NYI)Adjusts the starting point in the list of locations`,
 			callback:    commandMapf,
 		},
@@ -83,9 +83,16 @@ func getCommands() map[string]cliCommand {
 			description: "Display the previous 20 location areas in the Pokemon world",
 			usage:       `map - Display the previous 20 location areas in the Pokemon world
      mapb <number> <offset>
-          <number> - (NYI)Adjusts how many locations are shown at once.
+          <number> - (NYI)Adjusts how many locations are shown at once
           <offset> - (NYI)Adjusts the starting point in the list of locations`,
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Display all pokemon that can be found in a given area",
+			usage:       `explore <location> - Displays all Pokemon that can be found at <location>
+                 <location> - Map name that can be found with the map and mapb commands`,
+			callback:    commandExplore,
 		},
 	}
 }
