@@ -18,6 +18,10 @@ func commandCatch(cfg *config, parameters []string) error {
 	if err != nil {
 		return err
 	}
+	pokemonResp, err := cfg.pokeapiClient.PokemonInformation(pokemonName)
+	if err != nil {
+		return err
+	 }
 
 	fmt.Printf("Throwing a Pokeball at %s...\n", pokemonName)
 
@@ -26,7 +30,40 @@ func commandCatch(cfg *config, parameters []string) error {
 		return nil
 	}
 	fmt.Println(pokemonName, "was caught!")
-	cfg.pokedex[pokemonName] = pokemon{pokemonName}
+
+	_, caught := cfg.pokedex[pokemonName]
+
+	numEntries := len(speciesResp.FlavorTextEntries)
+	var flavorText string
+
+	for {
+		randIndex := rand.Intn(numEntries)
+		if speciesResp.FlavorTextEntries[randIndex].Language.Name == "en" {
+			flavorText = speciesResp.FlavorTextEntries[randIndex].FlavorText
+			break
+		}
+	}
+
+	if !caught {
+		var newPokeStats []pokemonStats
+		for _, stat := range pokemonResp.Stats {
+			newPokeStats = append(newPokeStats, pokemonStats{stat.Stat.Name, stat.BaseStat})
+		}
+		var newPokeTypes []string
+		for _, pokeType := range pokemonResp.Types {
+			newPokeTypes= append(newPokeTypes, pokeType.Type.Name)
+		}
+
+		cfg.pokedex[pokemonName] = pokemon{pokemonName,
+			pokemonResp.Height,
+			pokemonResp.Weight,
+			flavorText,
+			newPokeStats,
+			newPokeTypes,
+			}
+		fmt.Println (pokemonName, "has been added to your Pokedex!")
+	}
+
 	return nil
 }
 

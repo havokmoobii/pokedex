@@ -47,3 +47,45 @@ func (c *Client) SpeciesInformation(pokemonName string) (ResponseShallowPokemonS
 	
 	return speciesResp, nil
 }
+
+//PokemonInformation -
+func (c *Client) PokemonInformation(pokemonName string) (ResponseShallowPokemonInfo, error) {
+	url := baseURL + "/pokemon/" + pokemonName
+	
+	cachedResp, exists := c.pokeapiCache.Get(url)
+
+	if exists {
+		pokemonResp := ResponseShallowPokemonInfo{}
+		err := json.Unmarshal(cachedResp, &pokemonResp)
+		if err != nil {
+			return ResponseShallowPokemonInfo{}, err
+		}
+		return pokemonResp, nil
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return ResponseShallowPokemonInfo{}, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return ResponseShallowPokemonInfo{}, err
+	}
+	defer resp.Body.Close()
+
+	dat, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ResponseShallowPokemonInfo{}, err
+	}
+
+	c.pokeapiCache.Add(url, dat)
+
+	pokemonResp := ResponseShallowPokemonInfo{}
+	err = json.Unmarshal(dat, &pokemonResp)
+	if err != nil {
+		return ResponseShallowPokemonInfo{}, err
+	}
+	
+	return pokemonResp, nil
+}
